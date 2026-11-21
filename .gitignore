@@ -1,0 +1,17 @@
+# runtime data — personal health data must never be committed
+data/*
+!data/tally.db.example
+
+# local launcher config
+tally.local.cmd
+fitlocal.local.cmd
+
+# build outputs
+backend/target/
+frontend/dist/
+frontend/node_modules/
+
+# tooling
+.idea/
+.vscode/
+*.log
