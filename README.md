@@ -150,3 +150,7 @@ cd backend && mvnw test                 # backend tests (no Node needed)
 Tests use temporary SQLite files and a fixed clock. They cover auth (cookie flags, 30-day expiry, tampered tokens, password-reset revocation), workout create/replace/delete and retry idempotency, the exact text of the coach context and the numbers it states, choosing the model from what LM Studio has loaded (against a fake LM Studio), reasoning stripping, and the sample-database drift check.
 
 Never commit real data: `data/` is ignored except for the empty `tally.db.example`, and every test and fixture uses synthetic data.
+
+## License
+
+[MIT](LICENSE)
