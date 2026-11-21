@@ -9,10 +9,10 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>app.fitlocal</groupId>
-	<artifactId>fitlocal</artifactId>
+	<groupId>app.tally</groupId>
+	<artifactId>tally</artifactId>
 	<version>0.1.0</version>
-	<name>fitlocal</name>
+	<name>tally</name>
 	<description>Self-hosted fitness tracker with a local-LLM coach</description>
 
 	<properties>
@@ -60,7 +60,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>fitlocal</finalName>
+		<finalName>tally</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

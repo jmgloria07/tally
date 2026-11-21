@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api, onUnauthorized } from './api.js';
 import { dateChip, todayLocal } from './format.js';
+import BrandMark from './components/BrandMark.jsx';
 import LoginOverlay from './components/LoginOverlay.jsx';
 import Toast, { toast } from './components/Toast.jsx';
 import Overview from './tabs/Overview.jsx';
@@ -79,9 +80,9 @@ export default function App() {
       <div className="app-shell">
         <aside className="sidebar">
           <div className="brand">
-            <div className="brand-mark">F<span>.</span></div>
+            <BrandMark />
             <div>
-              <div className="brand-name">fitlocal</div>
+              <div className="brand-name">tally</div>
               <div className="brand-caption">YOUR PRIVATE COACH</div>
             </div>
           </div>
@@ -99,7 +100,7 @@ export default function App() {
             </div>
             <NavButton item={TABS[5]} active={tab === 'goals'} onClick={() => navigate('goals')} className="settings-link" />
             <div className="sidebar-footer">
-              <span>FitLocal · local-first</span>
+              <span>Tally · local-first</span>
               <button type="button" className="text-button sidebar-logout" onClick={logout}>
                 Sign out
               </button>
@@ -129,7 +130,7 @@ export default function App() {
 
           <footer className="app-footer">
             <span>
-              FITLOCAL <span className="footer-dot">•</span> PERSONAL FITNESS COACH
+              TALLY <span className="footer-dot">•</span> YOUR PRIVATE AI COACH
             </span>
             <span>LOCAL-FIRST · v0.1</span>
           </footer>

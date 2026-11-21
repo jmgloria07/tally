@@ -1,5 +1,7 @@
 # FitLocal Phase 1: Requirements & Design Spec
 
+> **Note:** The app was renamed from FitLocal to **Tally** after this spec was written. This document is kept as the original record; read `fitlocal` as `tally` in package names, file names and config keys.
+
 | | |
 |---|---|
 | **Status** | Approved. All open decisions resolved (see §1 and §13). |

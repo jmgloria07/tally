@@ -210,7 +210,7 @@ export default function Overview({ authEpoch, navigate, askCoach }) {
       </div>
 
       <div className="disclaimer">
-        FitLocal is a personal tracking tool, not a medical service. AI suggestions can be wrong; use judgment and
+        Tally is a personal tracking tool, not a medical service. AI suggestions can be wrong; use judgment and
         consult a qualified professional for medical concerns.
       </div>
     </section>

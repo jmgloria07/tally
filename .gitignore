@@ -1,8 +1,9 @@
 # runtime data — personal health data must never be committed
 data/*
-!data/fitlocal.db.example
+!data/tally.db.example
 
 # local launcher config
+tally.local.cmd
 fitlocal.local.cmd
 
 # build outputs

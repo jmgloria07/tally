@@ -1,6 +1,6 @@
--- FitLocal schema (SQLite). Applied on every startup by Spring SQL init; must stay idempotent.
+-- Tally schema (SQLite). Applied on every startup by Spring SQL init; must stay idempotent.
 -- No migration tool: CREATE TABLE IF NOT EXISTS never alters an existing table.
--- Changing this file? Regenerate data/fitlocal.db.example: start.bat --create-sample-db
+-- Changing this file? Regenerate data/tally.db.example: start.bat --create-sample-db
 
 CREATE TABLE IF NOT EXISTS users (
   id            INTEGER PRIMARY KEY,

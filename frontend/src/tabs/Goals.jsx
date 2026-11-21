@@ -140,7 +140,7 @@ export default function Goals({ authEpoch, onLogout }) {
         <div className="eyebrow">LOCAL DATA</div>
         <h3>Your records stay on your PC</h3>
         <p>
-          FitLocal stores logs in a SQLite database in the app's <code>data</code> folder and does not connect to a
+          Tally stores logs in a SQLite database in the app's <code>data</code> folder and does not connect to a
           cloud service. When you ask the coach a question, the last 4 weeks of records and these preferences are
           sent to the LM Studio server running on the same computer.
         </p>

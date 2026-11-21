@@ -21,7 +21,7 @@ export function onUnauthorized(handler) {
   unauthorizedHandler = handler;
 }
 
-const OFFLINE_MESSAGE = "Can't reach the FitLocal server. Nothing was lost; try again when you're back online.";
+const OFFLINE_MESSAGE = "Can't reach the Tally server. Nothing was lost; try again when you're back online.";
 
 export async function api(path, { method = 'GET', body } = {}) {
   const hasBody = body !== undefined;

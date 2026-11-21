@@ -6,8 +6,8 @@
 import { readJson, remove, writeJson, writeRaw } from './storage.js';
 import { numberToInput, toNumber } from './format.js';
 
-export const DRAFT_KEY = 'fitlocal.workoutDraft.v1';
-export const CORRUPT_KEY = 'fitlocal.workoutDraft.corrupt';
+export const DRAFT_KEY = 'tally.workoutDraft.v1';
+export const CORRUPT_KEY = 'tally.workoutDraft.corrupt';
 
 function uuid() {
   if (globalThis.crypto?.randomUUID) return crypto.randomUUID();

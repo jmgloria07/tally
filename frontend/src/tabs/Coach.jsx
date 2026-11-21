@@ -3,7 +3,7 @@ import { api } from '../api.js';
 import { renderMarkdown } from '../markdown.js';
 import { readJson, writeJson } from '../storage.js';
 
-const CHAT_KEY = 'fitlocal.chat.v1';
+const CHAT_KEY = 'tally.chat.v1';
 const MAX_HISTORY = 12;
 
 // Exactly three chips (spec §8.4). Chips fill the composer so the prompt can be edited before sending.
@@ -151,7 +151,7 @@ export default function Coach({ authEpoch, navigate, pendingPrompt, consumePromp
           <div className="chat-header">
             <div className="coach-orb large">✳</div>
             <div>
-              <h3>FitLocal coach</h3>
+              <h3>Tally</h3>
               <p>{subtitle}</p>
             </div>
             <button type="button" className="text-button" onClick={clearChat}>
@@ -286,7 +286,7 @@ function Message({ role, markdown, thinking = false, error = false, children }) 
     <div className={`message ${isUser ? 'user-message' : 'assistant-message'}`}>
       <div className="message-avatar">{isUser ? 'YOU' : 'F.'}</div>
       <div className="message-bubble">
-        <div className="message-author">{isUser ? 'YOU' : 'FITLOCAL COACH'}</div>
+        <div className="message-author">{isUser ? 'YOU' : 'TALLY'}</div>
         {markdown !== undefined ? (
           // Sanitized by DOMPurify inside renderMarkdown.
           <div className="message-content" dangerouslySetInnerHTML={{ __html: renderMarkdown(markdown) }} />

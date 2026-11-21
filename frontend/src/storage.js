@@ -42,3 +42,21 @@ export function remove(key) {
     // ignore
   }
 }
+
+/**
+ * Moves values saved under old key names (the app was called FitLocal) to their new names, once.
+ * An existing value under the new name always wins; the old key is only removed after a successful copy,
+ * so an in-progress workout draft can't be lost if storage is full.
+ */
+export function migrateLegacyKeys(renames) {
+  for (const [oldKey, newKey] of Object.entries(renames)) {
+    try {
+      const raw = window.localStorage.getItem(oldKey);
+      if (raw === null) continue;
+      if (window.localStorage.getItem(newKey) === null) window.localStorage.setItem(newKey, raw);
+      window.localStorage.removeItem(oldKey);
+    } catch {
+      // Storage unavailable or full: leave the old key in place and try again next load.
+    }
+  }
+}

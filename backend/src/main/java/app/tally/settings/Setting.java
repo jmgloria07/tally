@@ -1,0 +1,39 @@
+package app.tally.settings;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+/** One key/value row. Values are plain text; numbers are stored in canonical form (see Numbers). */
+@Entity
+@Table(name = "settings")
+public class Setting {
+
+    @Id
+    @Column(name = "key")
+    private String key;
+
+    @Column(name = "value", nullable = false)
+    private String value;
+
+    protected Setting() {
+    }
+
+    public Setting(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}

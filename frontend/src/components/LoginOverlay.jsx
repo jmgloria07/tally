@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../api.js';
+import BrandMark from './BrandMark.jsx';
 
 // Drawn on top of the mounted app so in-progress form state survives a 401.
 // The failed action is not retried automatically; the user taps it again.
@@ -28,9 +29,9 @@ export default function LoginOverlay({ onSignedIn }) {
     <div className="login-overlay" role="dialog" aria-modal="true" aria-labelledby="login-title">
       <form className="panel login-card" onSubmit={submit}>
         <div className="brand">
-          <div className="brand-mark">F<span>.</span></div>
+          <BrandMark />
           <div>
-            <div className="brand-name">fitlocal</div>
+            <div className="brand-name">tally</div>
             <div className="brand-caption">YOUR PRIVATE COACH</div>
           </div>
         </div>
