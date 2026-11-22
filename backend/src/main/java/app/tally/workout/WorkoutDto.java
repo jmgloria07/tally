@@ -13,8 +13,8 @@ import java.util.List;
  */
 public final class WorkoutDto {
 
-    static final int MAX_EXERCISES = 50;
-    static final int MAX_SETS = 50;
+    public static final int MAX_EXERCISES = 50;
+    public static final int MAX_SETS = 50;
 
     private WorkoutDto() {
     }

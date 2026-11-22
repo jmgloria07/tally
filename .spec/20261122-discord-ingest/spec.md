@@ -159,7 +159,7 @@ The message text, its creation time as a local date-time, and the timezone ID.
 ### 3.3 Reply content
 - **✅ reply:** each logged entry on its own line, in the strict format, so you can copy, fix and repost it.
 - **❌ reply:** the line number and the reason, then ``Send `help` for the format.``
-- **Help reply (E15):** the §4 format reference, written for a phone screen (one line per entry type with a short gloss), followed by an example message that uses every line type and the main set-group forms.
+- **Help reply (E15):** the §4 format reference, written for a phone screen (one line per entry type with a short gloss), followed by an example message that uses every entry type and the main set-group forms. The example leaves out `date:`, which the reference explains, so a copied example logs to the day it is posted.
 - Replies longer than Discord's message limit are truncated with a line saying how many entries were omitted. The data is still logged in full.
 
 ---
@@ -213,7 +213,7 @@ Not built in this version. These are the directions agreed during design, record
 ```sql
 CREATE TABLE IF NOT EXISTS ingested_messages (
     message_id  TEXT PRIMARY KEY,   -- Discord snowflake as text
-    ingested_at TEXT NOT NULL       -- ISO-8601 instant
+    ingested_at TEXT NOT NULL       -- local ISO timestamp, seconds precision, like every created_at
 );
 ```
 

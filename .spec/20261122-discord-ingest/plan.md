@@ -41,12 +41,12 @@ LLM parsing (spec §5) is a separate, later spec with its own plan.
 
 ## M1 — Strict ingestion (E2, E5, E10, E14, E15, §4, §6)
 
-- [ ] `ingested_messages` in `schema.sql`. Regenerate `data/tally.db.example` with `--create-sample-db`.
-- [ ] Parser seam: text plus message context in; validated `MealDto.Request` / `WorkoutDto.Request` / `WeighInDto.Request` lists, or a failure with line number and reason, out.
-- [ ] Strict parser per §4.
-- [ ] Ingestion service: given a message ID, context and text, it runs the ledger check, parses, then inserts everything plus the ledger row in one transaction through the existing services. It returns an outcome (logged, already logged, invalid) with reply text. No Discord types appear in it.
-- [ ] Reply formatting per §3.3, including truncation and the `help` hint on ❌.
-- [ ] Help (E15): the ingestion service recognises `help` and returns the help reply with nothing inserted. A test parses the help example successfully.
+- [x] `ingested_messages` in `schema.sql`. Regenerate `data/tally.db.example` with `--create-sample-db`.
+- [x] Parser seam: text plus message context in; validated `MealDto.Request` / `WorkoutDto.Request` / `WeighInDto.Request` lists, or a failure with line number and reason, out.
+- [x] Strict parser per §4.
+- [x] Ingestion service: given a message ID, context and text, it runs the ledger check, parses, then inserts everything plus the ledger row in one transaction through the existing services. It returns an outcome (logged, already logged, invalid) with reply text. No Discord types appear in it.
+- [x] Reply formatting per §3.3, including truncation and the `help` hint on ❌.
+- [x] Help (E15): the ingestion service recognises `help` and returns the help reply with nothing inserted. A test parses the help example successfully.
 
 **Done when:** strict parser unit tests and ingestion integration tests cover §4 and the data-related rows of §9; `SampleDbTests` passes; `mvnw verify` passes.
 
