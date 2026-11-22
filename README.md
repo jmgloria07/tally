@@ -21,6 +21,8 @@ Tally is my attempt at building an application with an **AI-native software deve
 - [spec.md](.spec/.initial/spec.md): the normative design. Every decision has an ID and a reason.
 - [plan.md](.spec/.initial/plan.md): milestones, each with a "Done when" gate that can be checked.
 
+Later features follow the same pattern in their own folder, for example [`.spec/20261122-discord-ingest/`](.spec/20261122-discord-ingest/) (logging from a Discord channel).
+
 ## Architecture
 
 ```
