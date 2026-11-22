@@ -8,6 +8,7 @@ import app.tally.weighin.WeighInService;
 import app.tally.workout.WorkoutService;
 import java.time.Clock;
 import java.util.Locale;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -43,22 +44,36 @@ public class IngestService {
         this.clock = clock;
     }
 
-    @Transactional
-    public IngestOutcome ingest(String messageId, String text, MessageContext context) {
+    /**
+     * The checks that need no parsing (§3.1 steps 2–3, plus E13 comments): ignored, help or already logged. Empty
+     * means the message should be parsed. The Discord worker calls this first so it adds 👀 only to messages it
+     * is about to parse.
+     */
+    @Transactional(readOnly = true)
+    public Optional<IngestOutcome> precheck(String messageId, String text) {
         if (messageId == null || messageId.isBlank()) {
             throw new IllegalArgumentException("messageId is required");
         }
         String trimmed = text == null ? "" : text.strip();
         if (trimmed.isEmpty() || trimmed.startsWith("//")) { // see E13
-            return IngestOutcome.ignored();
+            return Optional.of(IngestOutcome.ignored());
         }
         if (trimmed.toLowerCase(Locale.ROOT).equals("help")) { // see E15
             log.info("Message {}: help", messageId);
-            return new IngestOutcome(IngestOutcome.Kind.HELP, LogReplies.HELP);
+            return Optional.of(new IngestOutcome(IngestOutcome.Kind.HELP, LogReplies.HELP));
         }
         if (ledger.existsById(messageId)) { // see E2
             log.info("Message {}: already logged", messageId);
-            return new IngestOutcome(IngestOutcome.Kind.ALREADY_LOGGED, LogReplies.ALREADY_LOGGED);
+            return Optional.of(new IngestOutcome(IngestOutcome.Kind.ALREADY_LOGGED, LogReplies.ALREADY_LOGGED));
+        }
+        return Optional.empty();
+    }
+
+    @Transactional
+    public IngestOutcome ingest(String messageId, String text, MessageContext context) {
+        Optional<IngestOutcome> early = precheck(messageId, text);
+        if (early.isPresent()) {
+            return early.get();
         }
 
         ParsedLog parsed;

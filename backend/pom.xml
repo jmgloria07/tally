@@ -17,7 +17,21 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<discord4j.version>3.3.3</discord4j.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<!-- Discord4J 3.3.3 needs reactor-extra 3.6.x: 3.7 (Boot's managed version) removed reactor.retry,
+				     and the gateway login fails with ClassNotFoundException: reactor.retry.Backoff. Remove this pin
+				     when Discord4J moves off reactor.retry (see .spec/20261122-discord-ingest/post-build.md). -->
+				<groupId>io.projectreactor.addons</groupId>
+				<artifactId>reactor-extra</artifactId>
+				<version>3.6.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -40,6 +54,12 @@
 			<!-- Version managed by Boot so it matches the Hibernate 7 core it ships. -->
 			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-community-dialects</artifactId>
+		</dependency>
+		<dependency>
+			<!-- Discord log ingestion (discord-ingest E4). Reactor types stay inside app.tally.ingest.discord. -->
+			<groupId>com.discord4j</groupId>
+			<artifactId>discord4j-core</artifactId>
+			<version>${discord4j.version}</version>
 		</dependency>
 
 		<dependency>

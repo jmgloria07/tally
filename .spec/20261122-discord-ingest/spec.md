@@ -117,7 +117,7 @@ This rule applies to **every** backend feature, now and later, not just Discord 
 - A message whose whole text is `help` (case-insensitive, after trimming) gets a reply with the strict format reference (§4) and a complete example message. It is then marked ✅, so later scan passes treat it as processed (E1).
 - It inserts nothing and writes no ledger row. If Tally crashes between the reply and the ✅, the next pass replies again. That's harmless.
 - It is a plain text keyword, not a Discord slash command (slash commands stay out of scope). `help` with anything else in the message is parsed as a normal log, fails, and gets ❌ with the hint to send `help`.
-- **One source for the format text.** The help reply is the canonical cheat-sheet. The README cheat-sheet copies it. A test parses the help example with the strict parser and requires it to succeed, so the example can't drift from the grammar.
+- **One source for the format text.** The help reply is the only full format reference. The README shows example messages and points to `help`. Tests parse the help example and every README example with the strict parser and require them to succeed, so no example can drift from the grammar.
 
 ---
 
@@ -188,7 +188,7 @@ note: <text>                             workout-level notes; at most once
 - **note:** without any `lift:` line is invalid.
 - Limits are the existing DTO limits (text lengths, 50 exercises, 50 sets, value ranges). Error messages name the line number.
 
-Exact tokenisation (spacing around `x` and `@`, upper-case `X`) is left to the implementation, but it must be covered by tests and shown in the help reply (E15), which the README cheat-sheet copies.
+Exact tokenisation (spacing around `x` and `@`, upper-case `X`) is left to the implementation, but it must be covered by tests and shown in the help reply (E15).
 
 ---
 
@@ -231,15 +231,17 @@ Ingestion creates entries through the existing services' business logic, inside 
 
 All keys live under `tally.ingest.*` (amends phase 1 §3.4). Defaults are declared in the committed `application.properties`. Rows marked *secret* go in `secrets.properties` and `secrets.properties.example` (E12).
 
-| Key | Default | Meaning |
-|---|---|---|
-| `tally.ingest.discord.token` | blank | *Secret.* Bot token. Blank means the bot is off (E3). |
-| `tally.ingest.discord.channel-id` | blank | *Secret.* The one channel to read. Required when the token is set. |
-| `tally.ingest.discord.allowed-user-ids` | blank | *Secret.* Comma-separated Discord user IDs. Required when the token is set. |
-| `tally.ingest.discord.lookback-days` | `14` | Scan window (E1). |
-| `tally.ingest.discord.start-after` | blank | Optional ISO date. Messages before it are never ingested (e.g. to skip a channel's history on first run). |
-| `tally.ingest.discord.rescan-interval` | `15m` | Periodic scan pass (E4). |
-| `tally.ingest.timezone` | blank | IANA zone for log dates. Blank means the system default. |
+| Key | Default | Meaning | Valid values |
+|---|---|---|---|
+| `tally.ingest.discord.token` | blank | *Secret.* Bot token. Blank means the bot is off (E3). | Any non-blank text |
+| `tally.ingest.discord.channel-id` | blank | *Secret.* The one channel to read. Required when the token is set. | Digits (a Discord channel ID) |
+| `tally.ingest.discord.allowed-user-ids` | blank | *Secret.* Comma-separated Discord user IDs. Required when the token is set. | At least one ID; each is digits |
+| `tally.ingest.discord.lookback-days` | `14` | Scan window (E1). | Whole number ≥ 1 |
+| `tally.ingest.discord.start-after` | blank | Optional ISO date. Messages before it are never ingested (e.g. to skip a channel's history on first run). | Blank, or `YYYY-MM-DD` |
+| `tally.ingest.discord.rescan-interval` | `15m` | Periodic scan pass (E4). | Duration ≥ `1m` (keeps history calls well inside Discord's rate limits) |
+| `tally.ingest.timezone` | blank | IANA zone for log dates. Blank means the system default. | Blank, or an IANA zone ID (e.g. `Asia/Manila`) |
+
+When the token is set but any value is invalid, ingestion stays off and one error names the key and the rule (E3). The rest of the app starts normally.
 
 `.gitignore` gains `secrets.properties`. `secrets.properties.example` stays tracked.
 
@@ -269,7 +271,7 @@ All keys live under `tally.ingest.*` (amends phase 1 §3.4). Defaults are declar
 | Processed message edited | Ignored (E14). |
 | Pending message older than the scan window | Ignored (E1). |
 | Message has text and attachments | Attachments ignored, text parsed. |
-| Message has attachments only | ❌ `Text only. Attachments are not supported.` |
+| Message has attachments only | ❌ `Text only. Attachments are not supported.` plus the `help` hint (E8). |
 | Allow-listed message with empty text and no attachments | Usually means the Message Content intent is off. No reaction. Logged as a warning naming the likely cause. |
 | `date:` later than the message's local date | ❌. |
 | Empty message after removing blank lines | Ignored. |
@@ -335,4 +337,4 @@ Follow the phase 1 conventions: JUnit 5, AssertJ, `IntegrationTest` base with a 
 - [ ] Messages from another user, a bot, a thread, or starting with `//` get no reaction.
 - [ ] `secrets.properties` is ignored by git, and `secrets.properties.example` is tracked with empty values.
 - [ ] Logs contain no message text or tokens.
-- [ ] README has the Discord setup steps, the secrets-file rule and the strict format cheat-sheet.
+- [ ] README has the Discord setup steps, the secrets-file rule, and an example message with a pointer to `help`.

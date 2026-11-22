@@ -72,7 +72,7 @@ LLM parsing (spec §5) is a separate, later spec with its own plan.
 - [ ] README:
   - a **Configuration** step in Setup: copy `secrets.properties.example` to `secrets.properties` and fill in what you use. Every key is optional. Any backend secret, for any feature, goes in this file (E12).
   - a Discord setup section: creating the bot, the Message Content intent, permissions, which keys to fill in.
-  - a strict format cheat-sheet, copied from the help reply (E15), and a pointer to send `help` in the channel.
+  - an example message and a pointer to send `help` in the channel (E15); a test checks every README example parses.
   - the network change in "Security model".
 
 **Done when:**
