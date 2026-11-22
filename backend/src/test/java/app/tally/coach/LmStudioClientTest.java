@@ -151,6 +151,29 @@ class LmStudioClientTest {
                 });
     }
 
+    /** RestClient spec R5: a read timeout on the chat call is the model being slow (504), not LM Studio being down. */
+    @Test
+    void aSlowModelFailsWith504() {
+        nativeBody = "{\"data\": [{\"id\": \"qwen3-14b\", \"type\": \"llm\", \"state\": \"loaded\"}]}";
+        server.removeContext("/v1/chat/completions");
+        server.createContext("/v1/chat/completions", exchange -> {
+            try {
+                Thread.sleep(3_000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            respond(exchange, 200, "{\"choices\": [{\"message\": {\"content\": \"too late\"}}]}");
+        });
+        LmStudioClient slow = new LmStudioClient("http://127.0.0.1:" + server.getAddress().getPort() + "/v1", "",
+                Duration.ofSeconds(1));
+
+        assertThatThrownBy(() -> slow.chat(QUESTION))
+                .isInstanceOfSatisfying(LlmException.class, e -> {
+                    assertThat(e.status()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT);
+                    assertThat(e.getMessage()).isEqualTo("The model took longer than 1 seconds. Try a shorter question.");
+                });
+    }
+
     private LmStudioClient client(String configuredModel) {
         return new LmStudioClient("http://127.0.0.1:" + server.getAddress().getPort() + "/v1", configuredModel,
                 Duration.ofSeconds(5));

@@ -31,7 +31,7 @@ Tally is my attempt at building an application with an **AI-native software deve
  │ localStorage:│          └───────────────┘         │  ├─ /api/** (Spring MVC)     │
  │  draft, chat │                                    │  ├─ Spring Security filter   │
  └──────────────┘                                    │  └─ JPA ─▶ data/tally.db  │
-                                                     │        HttpClient            │
+                                                     │        RestClient            │
                                                      │          │                   │
                                                      │          ▼                   │
                                                      │  LM Studio 127.0.0.1:1234/v1 │
@@ -43,7 +43,7 @@ Tally is my attempt at building an application with an **AI-native software deve
 | Backend | Spring Boot 4 on JDK 21: Spring MVC, Spring Security, Spring Data JPA |
 | Database | SQLite (`sqlite-jdbc` + Hibernate community SQLite dialect) |
 | Frontend | React + Vite. No router, state library, or chart library |
-| LLM | LM Studio's OpenAI-compatible API, called with the JDK `HttpClient` |
+| LLM | LM Studio's OpenAI-compatible API, called with Spring `RestClient` |
 | Packaging | One jar: the Vite build is served as Spring static resources |
 
 Main design choices:
