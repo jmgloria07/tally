@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, for review |
+| **Status** | Approved |
 | **Source** | [intent.md](intent.md) |
 | **Plan** | [plan.md](plan.md) |
 | **Amends** | [`../.initial/spec.md`](../.initial/spec.md) §2 (privacy and footprint rows), §3.4 (configuration) |

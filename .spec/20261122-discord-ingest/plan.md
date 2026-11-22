@@ -32,8 +32,8 @@ LLM parsing (spec §5) is a separate, later spec with its own plan.
 
 ## M0 — Spec
 
-- [ ] `intent.md`, `spec.md`, `plan.md` in `.spec/20261122-discord-ingest/`.
-- [ ] Main README "How this was built" links to the new folder.
+- [x] `intent.md`, `spec.md`, `plan.md` in `.spec/20261122-discord-ingest/`.
+- [x] Main README "How this was built" links to the new folder.
 
 **Done when:** the spec is reviewed, every open point is resolved, and the status is set to Approved.
 
