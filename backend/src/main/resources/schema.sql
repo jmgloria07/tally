@@ -53,6 +53,12 @@ CREATE TABLE IF NOT EXISTS weigh_ins (
   created_at TEXT NOT NULL
 );
 
+-- Discord messages already logged (discord-ingest E2). Written in the same transaction as their entries.
+CREATE TABLE IF NOT EXISTS ingested_messages (
+  message_id  TEXT PRIMARY KEY,              -- Discord snowflake as text
+  ingested_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS settings (
   key   TEXT PRIMARY KEY,
   value TEXT NOT NULL

@@ -72,7 +72,7 @@ public abstract class IntegrationTest {
     @BeforeEach
     void resetState() {
         for (String table : new String[] {"workout_sets", "workout_exercises", "workouts", "meals", "weigh_ins",
-                "settings", "users"}) {
+                "settings", "users", "ingested_messages"}) {
             jdbc.update("DELETE FROM " + table);
         }
         clock.reset();
