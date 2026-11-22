@@ -63,6 +63,27 @@ class DiscordIngestWiringTests extends IntegrationTest {
     }
 
     @Test
+    void aFailureWhileStartingLeavesIngestionOffWithoutThrowing() {
+        DiscordSettings complete = new DiscordSettings("token", "999", "111", 14, "", Duration.ofMinutes(15), "");
+        DiscordIngestRunner failing = new DiscordIngestRunner(complete, ingestService, clock, s -> {
+            throw new IllegalStateException("simulated adapter failure");
+        });
+
+        failing.start();
+
+        assertThat(failing.isRunning()).isFalse();
+    }
+
+    @Test
+    void malformedIngestSettingsNeverStopTheAppFromStarting() {
+        try (ConfigurableApplicationContext cli = cliContext(
+                "--tally.ingest.discord.lookback-days=abc", "--tally.ingest.discord.rescan-interval=soon")) {
+            DiscordSettings settings = cli.getBean(DiscordSettings.class);
+            assertThat(settings.enabled()).isFalse();
+        }
+    }
+
+    @Test
     void secretsPropertiesOverrideTheCommittedDefaults() throws Exception {
         Path secrets = newDataDir().resolve("secrets.properties");
         Files.writeString(secrets, "tally.ingest.discord.channel-id=999\ntally.ingest.discord.lookback-days=3\n");

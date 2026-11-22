@@ -30,7 +30,7 @@ public final class LogReplies {
             weight: 72.4 | BF: 17.5%
             note: Legs and push""";
 
-    /** The canonical cheat-sheet (E15); the README copies it. */
+    /** The only full format reference (E15); the README shows examples and points here. */
     public static final String HELP = """
             **Log format**: one entry per line
             `meal: food | kcal | p/c/f | notes`

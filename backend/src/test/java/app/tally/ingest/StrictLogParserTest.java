@@ -66,6 +66,16 @@ class StrictLogParserTest {
     }
 
     @Test
+    void aMalformedMacrosFieldFailsInsteadOfBecomingNotes() {
+        for (String macros : new String[] {"30/40", "30/40/", "/", "30 / 40 / 5 / 1"}) {
+            assertInvalid("meal: Oats | 420 | " + macros,
+                    "Line 1: macros must be protein/carbs/fat in grams, like 32/60/8");
+        }
+        // Words make it notes, as before.
+        assertThat(parse("meal: Pizza | 600 | 1/2 of a large").meals().get(0).notes()).isEqualTo("1/2 of a large");
+    }
+
+    @Test
     void dateLineOverridesTheMessageDate() {
         ParsedLog log = parse("date: 2026-11-21\nmeal: Oats | 420");
         assertThat(log.date()).isEqualTo(LocalDate.of(2026, 11, 21));

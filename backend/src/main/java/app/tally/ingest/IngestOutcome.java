@@ -1,9 +1,8 @@
 package app.tally.ingest;
 
 /**
- * What happened to one message, and what to tell the user. The caller (the Discord worker) turns this into
- * reactions (E8): LOGGED, ALREADY_LOGGED and HELP get ✅, INVALID gets ❌, IGNORED gets nothing. {@code reply}
- * is null only for IGNORED.
+ * What happened to one message, and what to tell the user. Which reaction each kind gets is decided by the
+ * Discord worker (E8). {@code reply} is null only for IGNORED.
  */
 public record IngestOutcome(Kind kind, String reply) {
 

@@ -17,6 +17,7 @@ import discord4j.discordjson.json.MessageReferenceData;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import discord4j.rest.entity.RestChannel;
+import discord4j.rest.http.client.ClientException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -150,8 +151,11 @@ public class Discord4jPort implements DiscordPort {
         }
     }
 
-    /** Exception class and Discord status only: messages can echo request content. */
+    /** Discord's HTTP status, or the exception class; never the message, which can echo request content (§8). */
     private static String describe(Throwable e) {
+        if (e instanceof ClientException clientError) {
+            return "Discord " + clientError.getStatus().code();
+        }
         return e.getClass().getSimpleName();
     }
 }

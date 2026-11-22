@@ -69,13 +69,20 @@ public class IngestService {
         return Optional.empty();
     }
 
+    /** The whole flow: {@link #precheck}, then {@link #parseAndLog} when the message needs parsing. */
     @Transactional
     public IngestOutcome ingest(String messageId, String text, MessageContext context) {
         Optional<IngestOutcome> early = precheck(messageId, text);
-        if (early.isPresent()) {
-            return early.get();
-        }
+        return early.isPresent() ? early.get() : parseAndLog(messageId, text, context);
+    }
 
+    /**
+     * Parses and logs a message that {@link #precheck} returned empty for. The worker calls this directly after
+     * adding 👀, so the ledger isn't checked twice. If the message was logged in between, the ledger's primary key
+     * rejects the second insert and the transaction rolls back: an infrastructure failure the next scan resolves.
+     */
+    @Transactional
+    public IngestOutcome parseAndLog(String messageId, String text, MessageContext context) {
         ParsedLog parsed;
         try {
             parsed = parser.parse(text, context); // untrimmed, so line numbers match what the user sees

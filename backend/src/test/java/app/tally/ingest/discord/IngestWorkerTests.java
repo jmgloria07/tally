@@ -249,6 +249,24 @@ class IngestWorkerTests extends IntegrationTest {
     }
 
     @Test
+    void aStaleCopyOfAFinishedMessageIsNotProcessedAgain() {
+        // A scan snapshot or re-delivered event taken before the bot reacted (review finding: duplicate replies).
+        ChannelMessage logged = discord.post("1", ME, MEAL, minutesAgo(2));
+        ChannelMessage invalid = discord.post("2", ME, "meal: Oats", minutesAgo(1));
+        worker.onMessage(logged);
+        worker.onMessage(invalid);
+
+        worker.onMessage(logged);
+        worker.onMessage(invalid);
+
+        assertThat(discord.repliesTo("1")).hasSize(1);
+        assertThat(discord.repliesTo("2")).hasSize(1);
+        assertThat(discord.reactionLog).filteredOn(entry -> entry.startsWith("+❌") || entry.startsWith("+✅"))
+                .hasSize(2);
+        assertThat(count("meals")).isEqualTo(1);
+    }
+
+    @Test
     void theMessageDateIsTheLocalDateItWasSent() {
         discord.post("1", ME, MEAL, now.minus(Duration.ofDays(2)));
 

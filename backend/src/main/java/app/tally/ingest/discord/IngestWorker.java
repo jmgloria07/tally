@@ -5,10 +5,10 @@ import app.tally.ingest.IngestService;
 import app.tally.ingest.LogReplies;
 import app.tally.ingest.MessageContext;
 import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,12 +36,24 @@ public class IngestWorker implements DiscordPort.Listener {
     private final IngestService ingestService;
     private final Executor processor;
     private final Clock clock;
+    private final DiscordSettings settings;
     private final Set<String> allowedUserIds;
     private final ZoneId zone;
-    private final int lookbackDays;
-    private final Optional<LocalDate> startAfter;
     private final Runnable scanTrigger;
     private final Set<String> queued = ConcurrentHashMap.newKeySet();
+    /**
+     * Messages this worker already marked ✅/❌ (E4). A scan's snapshot or a re-delivered event can still show
+     * such a message without the bot's reaction; without this, it would be processed again and get a second
+     * reply. Bounded, and only a cache: after a restart the reactions in Discord are the record (E1).
+     */
+    private final Set<String> finished = Collections.newSetFromMap(Collections.synchronizedMap(
+            new LinkedHashMap<>(16, 0.75f, false) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+                    return size() > FINISHED_CAPACITY;
+                }
+            }));
+    static final int FINISHED_CAPACITY = 10_000;
 
     /**
      * @param scanTrigger how {@link #onConnected()} asks for a scan; production hands it to a scheduler thread so
@@ -53,10 +65,9 @@ public class IngestWorker implements DiscordPort.Listener {
         this.ingestService = ingestService;
         this.processor = processor;
         this.clock = clock;
-        this.allowedUserIds = settings.allowedUserIdSet();
+        this.settings = settings;
+        this.allowedUserIds = settings.allowedUserIdSet(); // read per message, so parsed once
         this.zone = settings.zone();
-        this.lookbackDays = settings.lookbackDays();
-        this.startAfter = settings.startAfterDate();
         this.scanTrigger = scanTrigger;
     }
 
@@ -74,7 +85,7 @@ public class IngestWorker implements DiscordPort.Listener {
     public void scan() {
         try {
             int queuedCount = 0;
-            for (ChannelMessage message : discord.history(windowStart())) {
+            for (ChannelMessage message : discord.history(settings.windowStart(clock.instant()))) {
                 if (isCandidate(message) && enqueue(message)) {
                     queuedCount++;
                 }
@@ -85,18 +96,8 @@ public class IngestWorker implements DiscordPort.Listener {
         }
     }
 
-    /** Newer than {@code lookback-days} ago and, if set, on or after {@code start-after} (E1). */
-    Instant windowStart() {
-        Instant lookback = clock.instant().minus(Duration.ofDays(lookbackDays));
-        if (startAfter.isEmpty()) {
-            return lookback;
-        }
-        Instant start = startAfter.get().atStartOfDay(zone).toInstant();
-        return start.isAfter(lookback) ? start : lookback;
-    }
-
     private boolean enqueue(ChannelMessage message) {
-        if (!queued.add(message.id())) {
+        if (finished.contains(message.id()) || !queued.add(message.id())) {
             return false;
         }
         processor.execute(() -> {
@@ -117,10 +118,12 @@ public class IngestWorker implements DiscordPort.Listener {
     }
 
     void process(ChannelMessage message) {
-        if (!isCandidate(message)) {
+        // Re-checked here too: a stale copy may have been queued before the first copy finished.
+        if (!isCandidate(message) || finished.contains(message.id())) {
             return;
         }
         String id = message.id();
+        long started = System.nanoTime();
         try {
             if (message.content().isBlank()) {
                 if (message.hasAttachments()) {
@@ -137,12 +140,16 @@ public class IngestWorker implements DiscordPort.Listener {
                 outcome = early.get();
             } else {
                 bestEffort(() -> discord.addReaction(id, PROCESSING), id, "add 👀");
-                outcome = ingestService.ingest(id, message.content(), MessageContext.of(message.sentAt(), zone));
+                outcome = ingestService.parseAndLog(id, message.content(), MessageContext.of(message.sentAt(), zone));
             }
+            // The one place an outcome becomes a reaction (E8).
             switch (outcome.kind()) {
                 case IGNORED -> { }
                 case INVALID -> finish(id, FAILED, outcome.reply());
                 case LOGGED, ALREADY_LOGGED, HELP -> finish(id, DONE, outcome.reply());
+            }
+            if (outcome.kind() != IngestOutcome.Kind.IGNORED) {
+                log.info("Message {}: {} handled in {} ms", id, outcome.kind(), elapsedMillis(started)); // §8
             }
         } catch (RuntimeException e) {
             // Infrastructure failure (E9): no ✅/❌, so the next scan pass retries it.
@@ -150,18 +157,29 @@ public class IngestWorker implements DiscordPort.Listener {
         }
     }
 
-    /** Final reaction, remove 👀, then the reply. Each step is best-effort: the data is already safe (§3.1). */
+    /**
+     * Final reaction, remove 👀, then the reply. Each step is best-effort: the data is already safe (§3.1). Only a
+     * message whose ✅/❌ actually landed counts as finished; otherwise the next scan reconciles it via the ledger.
+     */
     private void finish(String id, String reaction, String reply) {
-        bestEffort(() -> discord.addReaction(id, reaction), id, "add " + reaction);
+        if (bestEffort(() -> discord.addReaction(id, reaction), id, "add " + reaction)) {
+            finished.add(id);
+        }
         bestEffort(() -> discord.removeOwnReaction(id, PROCESSING), id, "remove 👀");
         bestEffort(() -> discord.reply(id, reply), id, "reply");
     }
 
-    private static void bestEffort(Runnable action, String id, String what) {
+    private static long elapsedMillis(long startedNanos) {
+        return (System.nanoTime() - startedNanos) / 1_000_000;
+    }
+
+    private static boolean bestEffort(Runnable action, String id, String what) {
         try {
             action.run();
+            return true;
         } catch (RuntimeException e) {
             log.warn("Message {}: could not {} ({})", id, what, e.getClass().getSimpleName());
+            return false;
         }
     }
 }

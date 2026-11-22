@@ -67,16 +67,24 @@ public class DiscordIngestRunner implements DisposableBean {
             log.error("Discord ingestion is off: {}", problem.get());
             return;
         }
-        processor = Executors.newSingleThreadExecutor(daemon("discord-ingest"));
-        scheduler = Executors.newSingleThreadScheduledExecutor(daemon("discord-scan"));
-        port = portFactory.apply(settings);
-        worker = new IngestWorker(port, ingestService, processor, clock, settings,
-                () -> scheduler.execute(worker::scan));
-        long every = settings.rescanInterval().toSeconds();
-        // Before the first connection a periodic scan just fails its history call and logs a warning.
-        scheduler.scheduleWithFixedDelay(worker::scan, every, every, TimeUnit.SECONDS);
-        port.start(worker); // connects in the background; ReadyEvent triggers the first scan
-        log.info("Discord ingestion starting (rescan every {})", settings.rescanInterval());
+        try {
+            processor = Executors.newSingleThreadExecutor(daemon("discord-ingest"));
+            scheduler = Executors.newSingleThreadScheduledExecutor(daemon("discord-scan"));
+            port = portFactory.apply(settings);
+            worker = new IngestWorker(port, ingestService, processor, clock, settings,
+                    () -> scheduler.execute(worker::scan));
+            long every = settings.rescanInterval().toSeconds();
+            // Before the first connection a periodic scan just fails its history call and logs a warning.
+            scheduler.scheduleWithFixedDelay(worker::scan, every, every, TimeUnit.SECONDS);
+            port.start(worker); // connects in the background; ReadyEvent triggers the first scan
+            log.info("Discord ingestion starting (rescan every {})", settings.rescanInterval());
+        } catch (RuntimeException e) {
+            // Last line of defence for E3: an exception from a ready-event listener would stop the whole app.
+            log.error("Discord ingestion is off: it failed to start ({})", e.getClass().getSimpleName());
+            destroy();
+            processor = null;
+            scheduler = null;
+        }
     }
 
     public synchronized boolean isRunning() {
@@ -85,20 +93,26 @@ public class DiscordIngestRunner implements DisposableBean {
 
     @Override
     public synchronized void destroy() {
-        if (port == null) {
-            return;
+        // Null-safe throughout: also used to clean up a start() that failed halfway.
+        if (scheduler != null) {
+            scheduler.shutdownNow();
         }
-        scheduler.shutdownNow();
-        processor.shutdown();
-        try {
-            port.stop();
-        } catch (RuntimeException e) {
-            log.warn("Discord logout failed ({})", e.getClass().getSimpleName());
+        if (processor != null) {
+            processor.shutdown();
         }
-        try {
-            processor.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        if (port != null) {
+            try {
+                port.stop();
+            } catch (RuntimeException e) {
+                log.warn("Discord logout failed ({})", e.getClass().getSimpleName());
+            }
+        }
+        if (processor != null) {
+            try {
+                processor.awaitTermination(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
         port = null;
         worker = null;

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,8 @@ public class StrictLogParser implements LogParser {
     private static final Pattern CALORIES = Pattern.compile("^" + NUMBER + "\\s*(?:kcal)?$", CI);
     private static final Pattern KILOGRAMS = Pattern.compile("^" + NUMBER + OPTIONAL_KG + "$", CI);
     private static final Pattern MACROS = Pattern.compile("^" + NUMBER + "\\s*/\\s*" + NUMBER + "\\s*/\\s*" + NUMBER + "$");
+    /** Only digits, dots, spaces and at least one slash: meant as macros even if malformed. */
+    private static final Pattern MACROS_ATTEMPT = Pattern.compile("^[\\d.\\s]*/[\\d.\\s/]*$");
     private static final Pattern POUNDS = Pattern.compile("\\d\\s*lbs?\\b", CI);
 
     /** {@code 3x5@100}: N sets of R reps at W kg. */
@@ -104,12 +107,7 @@ public class StrictLogParser implements LogParser {
     }
 
     private static LocalDate parseDate(String value, int lineNo, MessageContext context) {
-        LocalDate date;
-        try {
-            date = Checks.date(value, "Date");
-        } catch (ValidationException e) {
-            throw invalid(lineNo, e.getMessage());
-        }
+        LocalDate date = validated(lineNo, () -> Checks.date(value, "Date"));
         if (date.isAfter(context.date())) { // see E10
             throw invalid(lineNo, "date can't be after the day the message was sent (" + context.date() + ")");
         }
@@ -134,14 +132,16 @@ public class StrictLogParser implements LogParser {
                 carbs = Double.parseDouble(macros.group(2));
                 fat = Double.parseDouble(macros.group(3));
                 notesFrom = 3;
+            } else if (MACROS_ATTEMPT.matcher(fields.get(2)).matches()) {
+                // Numbers and slashes only, e.g. "30/40": a macros typo, not notes (§4: non-matching fails).
+                throw invalid(lineNo, "macros must be protein/carbs/fat in grams, like 32/60/8");
             }
         }
-        try {
-            return new MealDto.Request(date.toString(), fields.get(0), calories, protein, carbs, fat,
-                    rest(fields, notesFrom));
-        } catch (ValidationException e) {
-            throw invalid(lineNo, e.getMessage());
-        }
+        Double p = protein;
+        Double c = carbs;
+        Double f = fat;
+        String notes = rest(fields, notesFrom);
+        return validated(lineNo, () -> new MealDto.Request(date.toString(), fields.get(0), calories, p, c, f, notes));
     }
 
     /** {@code lift: exercise | sets [| notes]}. Validated later, together with the whole workout. */
@@ -157,8 +157,13 @@ public class StrictLogParser implements LogParser {
     private static WeighInDto.Request parseWeighIn(String value, int lineNo, LocalDate date) {
         List<String> fields = fields(value);
         Double kg = number(fields.get(0), KILOGRAMS, lineNo, "Weight");
+        return validated(lineNo, () -> new WeighInDto.Request(date.toString(), kg, rest(fields, 1)));
+    }
+
+    /** Runs a DTO constructor or check, turning its validation message into a line-numbered failure. */
+    private static <T> T validated(int lineNo, Supplier<T> build) {
         try {
-            return new WeighInDto.Request(date.toString(), kg, rest(fields, 1));
+            return build.get();
         } catch (ValidationException e) {
             throw invalid(lineNo, e.getMessage());
         }
