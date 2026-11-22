@@ -55,6 +55,8 @@ public abstract class IntegrationTest {
     static void dataDir(DynamicPropertyRegistry registry) {
         Path dir = newDataDir();
         registry.add("tally.data-dir", () -> dir.toString().replace('\\', '/'));
+        // A developer's real secrets.properties (or TALLY_SECRETS_FILE) must never make a test connect out.
+        registry.add("tally.ingest.discord.token", () -> "");
     }
 
     @Autowired
@@ -72,7 +74,7 @@ public abstract class IntegrationTest {
     @BeforeEach
     void resetState() {
         for (String table : new String[] {"workout_sets", "workout_exercises", "workouts", "meals", "weigh_ins",
-                "settings", "users"}) {
+                "settings", "users", "ingested_messages"}) {
             jdbc.update("DELETE FROM " + table);
         }
         clock.reset();
