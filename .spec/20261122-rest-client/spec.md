@@ -114,9 +114,9 @@ Follow the phase 1 conventions: JUnit 5, AssertJ, and the JDK's built-in HTTP se
 
 ## 5. Acceptance checklist
 
-- [ ] `pom.xml` is unchanged.
-- [ ] `LmStudioClient` no longer imports `java.net.http.HttpRequest` or `HttpResponse`.
-- [ ] `LmStudioClientTest` is unchanged apart from the new timeout test, and `mvnw verify` passes.
-- [ ] With LM Studio running and a model loaded, a coach chat answers and health shows the model.
-- [ ] With LM Studio stopped, health shows offline and chat shows "Can't reach LM Studio at …".
-- [ ] README no longer says the JDK `HttpClient`.
+- [x] `pom.xml` is unchanged.
+- [x] `LmStudioClient` no longer imports `java.net.http.HttpRequest` or `HttpResponse`.
+- [x] `LmStudioClientTest` is unchanged apart from the new timeout test, and `mvnw verify` passes.
+- [x] With LM Studio running and a model loaded, a coach chat answers and health shows the model.
+- [x] With LM Studio stopped, health shows offline and chat shows "Can't reach LM Studio at …".
+- [x] README no longer says the JDK `HttpClient`.

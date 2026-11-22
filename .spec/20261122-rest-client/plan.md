@@ -37,13 +37,13 @@ This feature lands **before** discord-ingest M1 (R6).
 
 ## M1 — RestClient switch (R1–R5)
 
-- [ ] Build the shared JDK transport and the three `RestClient`s in the constructor (R2). Constructor signature unchanged.
-- [ ] Replace `send(HttpRequest, boolean)` with a helper that runs a `RestClient` request and returns the status and body (R3), using the error mapping in R5.
-- [ ] `resolveModel` takes the client to use (models or health) instead of a `Duration`.
-- [ ] Chat serializes its body with the existing `JsonMapper` (R4). Parsing helpers unchanged.
-- [ ] `// see R#` comments where each decision is applied; class Javadoc updated.
-- [ ] New chat-timeout test (§3).
-- [ ] README: the architecture diagram label and the stack-table row name `RestClient`.
+- [x] Build the shared JDK transport and the three `RestClient`s in the constructor (R2). Constructor signature unchanged.
+- [x] Replace `send(HttpRequest, boolean)` with a helper that runs a `RestClient` request and returns the status and body (R3), using the error mapping in R5.
+- [x] `resolveModel` takes the client to use (models or health) instead of a `Duration`.
+- [x] Chat serializes its body with the existing `JsonMapper` (R4). Parsing helpers unchanged.
+- [x] `// see R#` comments where each decision is applied; class Javadoc updated.
+- [x] New chat-timeout test (§3).
+- [x] README: the architecture diagram label and the stack-table row name `RestClient`.
 
 **Done when:**
 - `mvnw verify` passes, with `LmStudioClientTest` unchanged apart from the new test;
