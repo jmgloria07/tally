@@ -9,6 +9,7 @@ cd backend && ./mvnw test                     # all backend tests; no Node neede
 cd backend && ./mvnw spring-boot:run          # API on 127.0.0.1:8765 (set TALLY_SECRETS_FILE=../secrets.properties to load secrets)
 cd frontend && npm install && npm run dev     # UI on localhost:5173, proxies /api
 start.bat --rebuild                           # full build (npm ci + vite build + mvnw package -DskipTests) and run
+start.bat --coach                             # also start LM Studio + model (plain start.bat skips it; lean-start L1)
 start.bat --create-sample-db                  # regenerate data/tally.db.example after any schema.sql change
 ```
 

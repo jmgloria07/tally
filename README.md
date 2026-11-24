@@ -88,21 +88,26 @@ You need **JDK 21** and, for building, **Node.js LTS**. For the coach you also n
    start.bat --create-user <username>
    ```
    You are asked for a password (at least 8 characters) twice. It is never shown or accepted as an argument.
-5. Start everything:
+5. Start Tally:
    ```
    start.bat
    ```
-   If a model is already loaded in LM Studio, `start.bat` uses it and loads nothing. Otherwise, on the first run it lists your LM Studio models and asks which one to use, saves the answer in `tally.local.cmd` (not committed), and loads it with a 20K context. Either way it starts the LM Studio API on `127.0.0.1:1234` if needed and runs Tally on `http://127.0.0.1:8765`.
+   This runs Tally on `http://127.0.0.1:8765` and leaves LM Studio alone, so startup stays light. The tracker doesn't need LM Studio; only the coach does. When you want the coach, either start LM Studio yourself, load a model and start its server (port 1234, the default), or start Tally with:
+   ```
+   start.bat --coach
+   ```
+   `--coach` starts LM Studio if it isn't running. If a model is already loaded, it uses that one and loads nothing. Otherwise, on the first `--coach` run it lists your LM Studio models and asks which one to use, saves the answer in `tally.local.cmd` (not committed), and loads it with a 20K context. Either way it starts the LM Studio API on `127.0.0.1:1234` if needed. The coach picks up a model loaded later too: no Tally restart needed.
 6. Point Tailscale Serve at the app (once): `tailscale serve --bg 8765`, then open the HTTPS URL it prints from your phone.
 7. On iPhone, use **Share → Add to Home Screen**. Safari can clear site storage for sites that are not used for a week unless they are on the Home Screen, and the workout draft and chat history are kept in that storage.
 
 ### Start with Windows (optional)
 
-1. Run `start.bat` once by hand so the first-run model question is answered.
-2. Press `Win + R`, enter `shell:startup`, and press Enter.
-3. In that folder, create a shortcut to `start.bat`. Optionally set the shortcut's **Run** to **Minimized**.
+1. Press `Win + R`, enter `shell:startup`, and press Enter.
+2. In that folder, create a shortcut to `start.bat`. Optionally set the shortcut's **Run** to **Minimized**.
 
-This is a login startup, not a Windows service: it runs after you sign in. The PC must stay on, and the Tally window and LM Studio must stay running. Tailscale should start with Windows; its Serve configuration persists. The launcher starts LM Studio's API bound to `127.0.0.1` only and never runs `tailscale funnel`.
+This is a login startup, not a Windows service: it runs after you sign in. The PC must stay on and the Tally window must stay running. Tailscale should start with Windows; its Serve configuration persists. The launcher never runs `tailscale funnel`.
+
+To have the coach ready at login too, add `--coach` to the shortcut's target after running `start.bat --coach` once by hand, so the first-run model question is answered. LM Studio must then stay running as well. `--coach` starts LM Studio's API bound to `127.0.0.1` only.
 
 ## Logging from Discord
 
@@ -163,7 +168,8 @@ Easy to misread: `3x8` means one set of 3 reps at 8 kg. For 3 sets of 8, write `
 | Sign out this device | **Sign out** in Goals & Preferences or the sidebar |
 | Reset a password | `start.bat --create-user <existing-name>` and answer `y`. That user's devices are signed out. |
 | Update after `git pull` | Stop Tally, then `start.bat --rebuild` (the jar is not rebuilt automatically; `start.bat` refuses to rebuild while the app is running) |
-| Change the model | Load a different model in LM Studio (unload the old one first so both don't sit in VRAM). The coach uses it from the next question; no restart needed. To change the model `start.bat` loads when nothing is loaded, edit or delete `tally.local.cmd`. |
+| Use the coach | Start LM Studio, load a model and start its server, or start Tally with `start.bat --coach` (combines with `--rebuild`). The Coach tab's status pill shows when it's online; no Tally restart needed. |
+| Change the model | Load a different model in LM Studio (unload the old one first so both don't sit in VRAM). The coach uses it from the next question; no restart needed. To change the model `start.bat --coach` loads when nothing is loaded, edit or delete `tally.local.cmd`. |
 
 ### Upgrading from FitLocal
 
@@ -189,8 +195,8 @@ A test fails the build if `data/tally.db.example` no longer matches `schema.sql`
 
 ## LLM notes
 
-- **Models.** Targets are gpt-oss-20B and Qwen3 14B with a 20K context. The coach always uses a model that is **already loaded** in LM Studio; it never makes LM Studio load one. `start.bat` loads your chosen model (with `--context-length 20480`) only when no model is loaded, because two models rarely fit in VRAM together. If you load a model yourself, give it a context of about 20K tokens; `start.bat` warns when it's much smaller.
-- **Configuration.** On every question the app asks LM Studio which models are loaded (its REST API, `/api/v0/models`). It uses `LM_STUDIO_MODEL` if that model is loaded, otherwise the first loaded chat model; with none loaded, the coach says so instead of answering. `start.bat` sets `LM_STUDIO_MODEL` only when it loaded a model itself, to the name LM Studio reports for it. The Coach tab's status pill shows the model in use. `LM_STUDIO_BASE_URL` defaults to `http://127.0.0.1:1234/v1`.
+- **Models.** Targets are gpt-oss-20B and Qwen3 14B with a 20K context. The coach always uses a model that is **already loaded** in LM Studio; it never makes LM Studio load one. Plain `start.bat` doesn't touch LM Studio. `start.bat --coach` loads your chosen model (with `--context-length 20480`) only when no model is loaded, because two models rarely fit in VRAM together. If you load a model yourself, give it a context of about 20K tokens; `start.bat --coach` warns when it's much smaller.
+- **Configuration.** On every question the app asks LM Studio which models are loaded (its REST API, `/api/v0/models`). It uses `LM_STUDIO_MODEL` if that model is loaded, otherwise the first loaded chat model; with none loaded, the coach says so instead of answering. `start.bat --coach` sets `LM_STUDIO_MODEL` only when it loaded a model itself, to the name LM Studio reports for it. The Coach tab's status pill shows the model in use. `LM_STUDIO_BASE_URL` defaults to `http://127.0.0.1:1234/v1`.
 - **What the model receives.** A system prompt with the coaching and safety rules, rules for reading the data, Markdown formatting rules, and your Goals & Preferences as labeled fields. The question is preceded by a tracker block that starts with the current local date and time. The rest covers the 28 completed days before today as four 7-day blocks. It opens with an **at a glance** summary of the last 7 days in which the app has already done every count a review needs: days logged, averages, days within 10% of the calorie target, days at the protein target, training sessions (including today's), and the weight change. Then come the daily lines for those 7 days, one summary line per earlier week, workouts grouped by week (`8 reps @ 17.5 kg, 8 @ 17.5, …`), and body weight. Every list is oldest first and every line starts with its own date, because real models misread longer, mixed-order lists. Today gets its own "in progress" section that is kept out of the counts, so a day that has barely started is never read as a missed day. Empty sections say so explicitly, so the model does not treat "not logged" as "did nothing". Typical size is 3–5K tokens, plus up to about 24,000 characters of chat history. To see exactly what the model receives, open **View context** in the Coach tab. The exact format is in [spec.md §8.4](docs/spec/.initial/spec.md#84-message-assembly).
 - **Reasoning output.** `<think>…</think>` blocks and gpt-oss channel markup are stripped from replies. There is no `max_tokens` cap, so a reasoning model is not cut off before its answer. The timeout is 3 minutes per reply.
 - **Weekly review** is a chip in the Coach tab that fills in a structured prompt (the last 7 days, compared with the rest of the month); it goes through the same chat endpoint as any question.

@@ -34,13 +34,13 @@
 
 ## M1 — Lean start (L1–L5)
 
-- [ ] `start.bat`: header comment and usage text list `--coach` (L2).
-- [ ] `start.bat`: argument loop that sets `REBUILD` / `COACH`, keeps subcommands first with `%*` passthrough, and rejects the combinations in L2.
-- [ ] `start.bat`: after the build, go to the LM Studio step only with `COACH`. Otherwise print the hint line and run Tally (L1). Step 5 comment cites L1.
-- [ ] `LmStudioClient`: the two messages from L4.
-- [ ] README: Setup, Windows Startup, Operations ("Change the model", plus a `--coach` row), LLM notes (L1, L3, L5).
-- [ ] CLAUDE.md Commands: `start.bat --coach`.
-- [ ] `post-build.md`: differences, verification results.
+- [x] `start.bat`: header comment and usage text list `--coach` (L2).
+- [x] `start.bat`: argument loop that sets `REBUILD` / `COACH`, keeps subcommands first with `%*` passthrough, and rejects the combinations in L2.
+- [x] `start.bat`: after the build, go to the LM Studio step only with `COACH`. Otherwise print the hint line and run Tally (L1). Step 5 comment cites L1.
+- [x] `LmStudioClient`: the two messages from L4.
+- [x] README: Setup, Windows Startup, Operations ("Change the model", plus a `--coach` row), LLM notes (L1, L3, L5).
+- [x] CLAUDE.md Commands: `start.bat --coach`.
+- [x] `post-build.md`: differences, verification results.
 
 **Done when:**
 - `mvnw test` passes;

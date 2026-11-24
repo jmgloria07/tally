@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft |
+| **Status** | Approved |
 | **Source** | [intent.md](intent.md) |
 | **Plan** | [plan.md](plan.md) |
 | **Amends** | [`../.initial/spec.md`](../.initial/spec.md) §10 (`start.bat` usage and step 5), D6 (who loads a model), §8.7 (two error messages), §14 acceptance item on `start.bat` |
@@ -105,11 +105,11 @@ Everything under "not in this change" in [intent.md](intent.md). Also the phase 
 
 ## 5. Acceptance checklist
 
-- [ ] Plain `start.bat` prints the hint line, starts no LM Studio process, and serves Tally on `127.0.0.1:8765` only.
-- [ ] `start.bat --coach` behaves as `start.bat` did before (uses a loaded model or loads the configured one, API on `127.0.0.1:1234`).
-- [ ] `--rebuild --coach` and `--coach --rebuild` both rebuild and run the LM Studio step.
-- [ ] `--coach --create-user x`, a repeated flag and an unknown option print usage and exit 1.
-- [ ] `--create-user <name>` and `--create-sample-db` behave as before.
-- [ ] With LM Studio stopped, the Coach tab shows offline and the new "Can't reach" message.
-- [ ] `mvnw test` passes.
-- [ ] README and CLAUDE.md describe the new default and `--coach`.
+- [x] Plain `start.bat` prints the hint line, starts no LM Studio process, and serves Tally on `127.0.0.1:8765` only.
+- [x] `start.bat --coach` behaves as `start.bat` did before (uses a loaded model or loads the configured one, API on `127.0.0.1:1234`).
+- [x] `--rebuild --coach` and `--coach --rebuild` both rebuild and run the LM Studio step.
+- [x] `--coach --create-user x`, a repeated flag and an unknown option print usage and exit 1.
+- [x] `--create-user <name>` and `--create-sample-db` behave as before.
+- [x] With LM Studio stopped, the Coach tab shows offline and the new "Can't reach" message.
+- [x] `mvnw test` passes.
+- [x] README and CLAUDE.md describe the new default and `--coach`.
