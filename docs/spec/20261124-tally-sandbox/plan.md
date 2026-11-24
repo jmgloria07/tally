@@ -18,14 +18,14 @@ This plan is written after the build. The design was approved as a working plan 
 
 | # | Milestone | Main output | Review closely |
 |---|---|---|---|
-| M0 | Spec | `.spec/20261124-tally-sandbox/` | All of it |
+| M0 | Spec | `docs/spec/20261124-tally-sandbox/` | All of it |
 | M1 | Sandbox skill | `.claude/skills/tally-sandbox/` | S3 (channel key, never the real channel), S8 (guards), `SeedDemoData.java` |
 
 ---
 
 ## M0 — Spec
 
-- [x] `intent.md`, `spec.md`, `plan.md` and `post-build.md` in `.spec/20261124-tally-sandbox/`.
+- [x] `intent.md`, `spec.md`, `plan.md` and `post-build.md` in `docs/spec/20261124-tally-sandbox/`.
 
 **Done when:** the spec is reviewed and its status is set to Approved.
 

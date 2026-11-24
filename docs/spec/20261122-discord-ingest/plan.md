@@ -20,7 +20,7 @@ This plan applies the lesson from [`../.initial/README.md`](../.initial/README.m
 
 | # | Milestone | Main output | Tests added | Review closely |
 |---|---|---|---|---|
-| M0 | Spec | `.spec/20261122-discord-ingest/` | — | All of it |
+| M0 | Spec | `docs/spec/20261122-discord-ingest/` | — | All of it |
 | M1 | Strict ingestion | Strict parser, parser seam, ingestion service, ledger table | Parser unit tests, ingestion integration tests | Transaction and ledger, parser rules |
 | M2 | Discord | Discord4J adapter, scan and live worker, secrets file, config, docs | Wiring tests, manual acceptance | Skip rules, secrets, logging |
 
@@ -32,7 +32,7 @@ LLM parsing (spec §5) is a separate, later spec with its own plan.
 
 ## M0 — Spec
 
-- [x] `intent.md`, `spec.md`, `plan.md` in `.spec/20261122-discord-ingest/`.
+- [x] `intent.md`, `spec.md`, `plan.md` in `docs/spec/20261122-discord-ingest/`.
 - [x] Main README "How this was built" links to the new folder.
 
 **Done when:** the spec is reviewed, every open point is resolved, and the status is set to Approved.

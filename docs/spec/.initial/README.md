@@ -49,5 +49,5 @@ To get through the pull request I already had, I reviewed it by risk instead of 
 
 ## How to read this folder
 
-- These files are a **snapshot** dated 2026-11-21. They show where the project started, not necessarily where it is today. For how the app works now and how to run it, see the [main README](../../README.md).
+- These files are a **snapshot** dated 2026-11-21. They show where the project started, not necessarily where it is today. For how the app works now and how to run it, see the [main README](../../../README.md).
 - If you only have a few minutes, read [intent.md](intent.md). Read [spec.md](spec.md) §1 for the reasoning behind each decision, and [plan.md](plan.md) to see how the work was ordered and checked.

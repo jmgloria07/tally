@@ -22,14 +22,14 @@ This feature lands **before** discord-ingest M1 (R6).
 
 | # | Milestone | Main output | Tests added | Review closely |
 |---|---|---|---|---|
-| M0 | Spec | `.spec/20261122-rest-client/` | — | All of it |
+| M0 | Spec | `docs/spec/20261122-rest-client/` | — | All of it |
 | M1 | RestClient switch | `LmStudioClient` on `RestClient` | Chat timeout test | Error mapping (R5), status handling (R3) |
 
 ---
 
 ## M0 — Spec
 
-- [x] `intent.md`, `spec.md`, `plan.md` in `.spec/20261122-rest-client/`.
+- [x] `intent.md`, `spec.md`, `plan.md` in `docs/spec/20261122-rest-client/`.
 
 **Done when:** the spec is reviewed, every open point is resolved, and the status is set to Approved.
 

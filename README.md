@@ -15,13 +15,13 @@ It is built for one person, runs on a Windows PC, and is reachable only over [Ta
 
 ## How this was built
 
-Tally is my attempt at building an application with an **AI-native software development life cycle (SDLC)**. The intent, the spec and the build plan were written before any code, and they guided the design, implementation and tests from there. If you want to develop apps with AI, start with [`.spec/.initial/`](.spec/.initial/). Its [README](.spec/.initial/README.md) explains the approach and how to read the documents:
+Tally is my attempt at building an application with an **AI-native software development life cycle (SDLC)**. The intent, the spec and the build plan were written before any code, and they guided the design, implementation and tests from there. If you want to develop apps with AI, start with [`docs/spec/.initial/`](docs/spec/.initial/). Its [README](docs/spec/.initial/README.md) explains the approach and how to read the documents:
 
-- [intent.md](.spec/.initial/intent.md): goals, stack and the main design choices, in about two pages.
-- [spec.md](.spec/.initial/spec.md): the normative design. Every decision has an ID and a reason.
-- [plan.md](.spec/.initial/plan.md): milestones, each with a "Done when" gate that can be checked.
+- [intent.md](docs/spec/.initial/intent.md): goals, stack and the main design choices, in about two pages.
+- [spec.md](docs/spec/.initial/spec.md): the normative design. Every decision has an ID and a reason.
+- [plan.md](docs/spec/.initial/plan.md): milestones, each with a "Done when" gate that can be checked.
 
-Later features follow the same pattern in their own folder, for example [`.spec/20261122-discord-ingest/`](.spec/20261122-discord-ingest/) (logging from a Discord channel).
+Later features follow the same pattern in their own folder, for example [`docs/spec/20261122-discord-ingest/`](docs/spec/20261122-discord-ingest/) (logging from a Discord channel).
 
 ## Architecture
 
@@ -55,7 +55,7 @@ Main design choices:
 - **Workout drafts live in the browser.** An in-progress session is saved to `localStorage` on every change, so it survives a refresh, closing the browser, or losing the connection. It is sent once with **Finish workout**, and only cleared after the server confirms. Each draft carries a `submissionId`, so a retried submit whose first response was lost does not create a duplicate.
 - **The app does the arithmetic, not the model.** Each coach request includes the last 4 weeks as compact labeled plain text, with daily totals, differences from your targets and weekly counts already computed. See [LLM notes](#llm-notes).
 
-The full requirements and design decisions are in [spec.md](.spec/.initial/spec.md).
+The full requirements and design decisions are in [spec.md](docs/spec/.initial/spec.md).
 
 ## Security model
 
@@ -191,7 +191,7 @@ A test fails the build if `data/tally.db.example` no longer matches `schema.sql`
 
 - **Models.** Targets are gpt-oss-20B and Qwen3 14B with a 20K context. The coach always uses a model that is **already loaded** in LM Studio; it never makes LM Studio load one. `start.bat` loads your chosen model (with `--context-length 20480`) only when no model is loaded, because two models rarely fit in VRAM together. If you load a model yourself, give it a context of about 20K tokens; `start.bat` warns when it's much smaller.
 - **Configuration.** On every question the app asks LM Studio which models are loaded (its REST API, `/api/v0/models`). It uses `LM_STUDIO_MODEL` if that model is loaded, otherwise the first loaded chat model; with none loaded, the coach says so instead of answering. `start.bat` sets `LM_STUDIO_MODEL` only when it loaded a model itself, to the name LM Studio reports for it. The Coach tab's status pill shows the model in use. `LM_STUDIO_BASE_URL` defaults to `http://127.0.0.1:1234/v1`.
-- **What the model receives.** A system prompt with the coaching and safety rules, rules for reading the data, Markdown formatting rules, and your Goals & Preferences as labeled fields. The question is preceded by a tracker block that starts with the current local date and time. The rest covers the 28 completed days before today as four 7-day blocks. It opens with an **at a glance** summary of the last 7 days in which the app has already done every count a review needs: days logged, averages, days within 10% of the calorie target, days at the protein target, training sessions (including today's), and the weight change. Then come the daily lines for those 7 days, one summary line per earlier week, workouts grouped by week (`8 reps @ 17.5 kg, 8 @ 17.5, …`), and body weight. Every list is oldest first and every line starts with its own date, because real models misread longer, mixed-order lists. Today gets its own "in progress" section that is kept out of the counts, so a day that has barely started is never read as a missed day. Empty sections say so explicitly, so the model does not treat "not logged" as "did nothing". Typical size is 3–5K tokens, plus up to about 24,000 characters of chat history. To see exactly what the model receives, open **View context** in the Coach tab. The exact format is in [spec.md §8.4](.spec/.initial/spec.md#84-message-assembly).
+- **What the model receives.** A system prompt with the coaching and safety rules, rules for reading the data, Markdown formatting rules, and your Goals & Preferences as labeled fields. The question is preceded by a tracker block that starts with the current local date and time. The rest covers the 28 completed days before today as four 7-day blocks. It opens with an **at a glance** summary of the last 7 days in which the app has already done every count a review needs: days logged, averages, days within 10% of the calorie target, days at the protein target, training sessions (including today's), and the weight change. Then come the daily lines for those 7 days, one summary line per earlier week, workouts grouped by week (`8 reps @ 17.5 kg, 8 @ 17.5, …`), and body weight. Every list is oldest first and every line starts with its own date, because real models misread longer, mixed-order lists. Today gets its own "in progress" section that is kept out of the counts, so a day that has barely started is never read as a missed day. Empty sections say so explicitly, so the model does not treat "not logged" as "did nothing". Typical size is 3–5K tokens, plus up to about 24,000 characters of chat history. To see exactly what the model receives, open **View context** in the Coach tab. The exact format is in [spec.md §8.4](docs/spec/.initial/spec.md#84-message-assembly).
 - **Reasoning output.** `<think>…</think>` blocks and gpt-oss channel markup are stripped from replies. There is no `max_tokens` cap, so a reasoning model is not cut off before its answer. The timeout is 3 minutes per reply.
 - **Weekly review** is a chip in the Coach tab that fills in a structured prompt (the last 7 days, compared with the rest of the month); it goes through the same chat endpoint as any question.
 

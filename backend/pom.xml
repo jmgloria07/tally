@@ -25,7 +25,7 @@
 			<dependency>
 				<!-- Discord4J 3.3.3 needs reactor-extra 3.6.x: 3.7 (Boot's managed version) removed reactor.retry,
 				     and the gateway login fails with ClassNotFoundException: reactor.retry.Backoff. Remove this pin
-				     when Discord4J moves off reactor.retry (see .spec/20261122-discord-ingest/post-build.md). -->
+				     when Discord4J moves off reactor.retry (see docs/spec/20261122-discord-ingest/post-build.md). -->
 				<groupId>io.projectreactor.addons</groupId>
 				<artifactId>reactor-extra</artifactId>
 				<version>3.6.0</version>
