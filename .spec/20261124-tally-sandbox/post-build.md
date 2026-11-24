@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Spec** | [spec.md](spec.md) |
+| **Spec** | [spec.md](spec.md) (approved, unchanged by these notes) |
 | **Plan** | [plan.md](plan.md) |
 | **Covers** | M1 (uncommitted on `main` at the time of writing) |
 | **Date** | 2026-11-24 |

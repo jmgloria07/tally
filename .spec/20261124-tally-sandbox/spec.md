@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, awaiting review. Written after the build, from the plan approved on 2026-11-23. |
+| **Status** | Approved (2026-11-24). Written after the build, from the plan approved on 2026-11-23. |
 | **Source** | [intent.md](intent.md) |
 | **Plan** | [plan.md](plan.md) |
 | **Amends** | [`../20261122-discord-ingest/`](../20261122-discord-ingest/): the acceptance skill named in post-build.md §2 is replaced by `tally-sandbox`. No normative app behavior changes. |

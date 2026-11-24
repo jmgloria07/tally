@@ -31,7 +31,7 @@ These are within the spec's "class design is left to the implementation" rule. R
 - **Version alignment:** Spring Boot's dependency management resolves Discord4J 3.3.3's libraries to Reactor Netty 1.4.0, Netty 4.2.20 and Jackson 2.21.8, not the versions Discord4J was built against.
 - **One version pin: `reactor-extra` 3.6.0** in `backend/pom.xml` `<dependencyManagement>`. Boot manages 3.7.0, which removed `reactor.retry`, and Discord4J's gateway login failed at runtime with `ClassNotFoundException: reactor.retry.Backoff`. The REST-only spike didn't exercise that path; the first acceptance start did. Remove the pin when Discord4J stops using `reactor.retry`.
 - **Jar size:** about 107 MB with Discord4J and Netty's native transports (including QUIC natives for several platforms). Not trimmed.
-- **Acceptance skill:** `.claude/skills/discord-acceptance/` holds the manual run's steps, message script and checks, plus two helpers (`ChannelCheck.java`, `DbQuery.java`).
+- **Acceptance skill:** `.claude/skills/discord-acceptance/` holds the manual run's steps, message script and checks, plus two helpers (`ChannelCheck.java`, `DbQuery.java`). It was later renamed `tally-sandbox` and generalized for demos (`.claude/skills/tally-sandbox/`).
 - **Settings checks** the spec doesn't name (see P3): the channel ID and user IDs must be digits, `start-after` must be a date and `timezone` an IANA zone.
 
 ## 3. Verification
