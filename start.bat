@@ -1,10 +1,14 @@
 @echo off
 rem Tally launcher (Windows). See README.md for setup.
 rem
-rem   start.bat                          start LM Studio + model, build jar if missing, run app
+rem   start.bat                          build jar if missing, run app (no LM Studio)
 rem   start.bat --rebuild                same, but always rebuild first
+rem   start.bat --coach                  also start LM Studio + model first; combines with --rebuild
 rem   start.bat --create-user <name>     build jar if missing, run subcommand, exit (no LM Studio)
 rem   start.bat --create-sample-db       build jar if missing, run subcommand, exit (no LM Studio)
+rem
+rem LM Studio is opt-in (docs/spec/20261124-lean-start, L1): the coach works whenever a model is
+rem loaded in LM Studio, so starting it by hand later needs no restart.
 
 setlocal EnableExtensions
 cd /d "%~dp0"
@@ -14,20 +18,44 @@ set "CONFIG_FILE=%~dp0tally.local.cmd"
 rem Settings saved before the rename from FitLocal: keep them under the new name.
 if not exist "%CONFIG_FILE%" if exist "%~dp0fitlocal.local.cmd" ren "%~dp0fitlocal.local.cmd" tally.local.cmd
 set "REBUILD="
+set "COACH="
 set "SUBCOMMAND="
 set "USING_LOADED="
 
-if /I "%~1"=="--rebuild" set "REBUILD=1"
+rem Argument rules (L2). A subcommand must come first; its arguments pass through to the jar
+rem untouched (%* is not affected by shift), except that --coach is refused because a subcommand
+rem never starts the server.
 if /I "%~1"=="--create-user" set "SUBCOMMAND=1"
 if /I "%~1"=="--create-sample-db" set "SUBCOMMAND=1"
+if defined SUBCOMMAND goto :check_subcommand_args
+
+:parse_args
 if "%~1"=="" goto :check_java
-if defined REBUILD goto :check_java
-if defined SUBCOMMAND goto :check_java
-echo Unknown option: %~1
+if /I "%~1"=="--rebuild" if not defined REBUILD (
+  set "REBUILD=1"
+  shift
+  goto :parse_args
+)
+if /I "%~1"=="--coach" if not defined COACH (
+  set "COACH=1"
+  shift
+  goto :parse_args
+)
+goto :usage
+
+:check_subcommand_args
+shift
+if "%~1"=="" goto :check_java
+if /I "%~1"=="--coach" goto :usage
+goto :check_subcommand_args
+
+:usage
+echo Unknown or repeated option: %~1
 echo.
 echo Usage:
-echo   start.bat                          start LM Studio + model, build if needed, run Tally
+echo   start.bat                          build if needed, run Tally (no LM Studio)
 echo   start.bat --rebuild                rebuild the app first (use after git pull)
+echo   start.bat --coach                  also start LM Studio and the coach model; combines with --rebuild
 echo   start.bat --create-user ^<name^>     create a user, or reset an existing user's password
 echo   start.bat --create-sample-db       regenerate data\tally.db.example
 exit /b 1
@@ -110,15 +138,21 @@ exit /b 1
 :after_build
 rem ---------------------------------------------------------------------------------------------
 rem 4. Subcommands run the jar and exit with its exit code. No LM Studio, no server.
+rem    Without --coach, LM Studio is skipped entirely: no lookup, no probe (L1).
 rem ---------------------------------------------------------------------------------------------
-if not defined SUBCOMMAND goto :lm_studio
+if defined SUBCOMMAND goto :run_subcommand
+if defined COACH goto :lm_studio
+echo AI coach: start LM Studio and load a model when you need it, or run start.bat --coach.
+goto :run_app
+
+:run_subcommand
 rem Kept outside parentheses: a path argument containing ")" would otherwise break the block.
 java -jar "%JAR%" %*
 exit /b %ERRORLEVEL%
 
 rem ---------------------------------------------------------------------------------------------
-rem 5. LM Studio (ported from Start-Tally-All.bat). The tracker works without it; only the coach
-rem    needs it, so problems here are warnings, not errors.
+rem 5. LM Studio, only with --coach (L1; ported from Start-Tally-All.bat). The tracker works without
+rem    it; only the coach needs it, so problems here are warnings, not errors.
 rem ---------------------------------------------------------------------------------------------
 :lm_studio
 set "LMS_EXE=%USERPROFILE%\.lmstudio\bin\lms.exe"
@@ -128,7 +162,7 @@ if not defined LMS_EXE (
 )
 if not defined LMS_EXE (
   echo WARNING: LM Studio's lms.exe was not found. Starting Tally without the AI coach.
-  echo Open LM Studio once ^(it installs lms.exe^), then run start.bat again.
+  echo Open LM Studio once ^(it installs lms.exe^), then run start.bat --coach again.
   goto :run_app
 )
 
@@ -163,7 +197,7 @@ if not defined LOADED_CONTEXT (
 echo Using the model already loaded in LM Studio: %LOADED_MODEL% ^(context %LOADED_CONTEXT% tokens^).
 if %LOADED_CONTEXT% LSS 16384 (
   echo WARNING: The coach needs a context of about 20480 tokens; long questions may fail with %LOADED_CONTEXT%.
-  echo Reload the model in LM Studio with a larger context length, or unload it and run start.bat again.
+  echo Reload the model in LM Studio with a larger context length, or unload it and run start.bat --coach again.
 )
 goto :check_api
 

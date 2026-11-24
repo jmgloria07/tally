@@ -46,7 +46,7 @@ public class LmStudioClient {
 
     static final double TEMPERATURE = 0.55;
     static final String NO_MODEL_LOADED =
-            "LM Studio is running but no model is loaded. Load one in LM Studio (or run start.bat) and try again.";
+            "LM Studio is running but no model is loaded. Load one in LM Studio and try again.";
     private static final String UNEXPECTED = "LM Studio returned an unexpected response.";
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(5);
     private static final Duration MODELS_TIMEOUT = Duration.ofSeconds(5);
@@ -243,7 +243,7 @@ public class LmStudioClient {
 
     private LlmException unreachable() {
         return new LlmException(HttpStatus.SERVICE_UNAVAILABLE,
-                "Can't reach LM Studio at " + baseUrl + ". Start it (or run start.bat) and try again.");
+                "Can't reach LM Studio at " + baseUrl + ". Start it (or run start.bat --coach) and try again.");
     }
 
     private static LlmException httpError(Reply response) {
