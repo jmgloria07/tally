@@ -11,10 +11,11 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Lists the newest messages in the configured log channel, oldest first, as the bot sees them: author, first
- * line of text, the bot's own reactions, and which message a reply answers. Reads the token and channel ID from
- * secrets.properties and never prints the token.
- * Usage: java -cp "$CP" ChannelCheck.java secrets.properties [limit, default 20]
+ * Lists the newest messages in the sandbox's Discord channel, oldest first, as the bot sees them: author, first
+ * line of text, the bot's own reactions, and which message a reply answers. Reads the token and the channel ID
+ * from secrets.properties and never prints the token. The channel comes from sandbox.discord.channel-id unless
+ * another key is given, so the check reads the same channel the sandbox does.
+ * Usage: java -cp "$CP" ChannelCheck.java secrets.properties [limit, default 20] [channel key]
  */
 public class ChannelCheck {
     public static void main(String[] args) throws Exception {
@@ -23,15 +24,16 @@ public class ChannelCheck {
             secrets.load(in);
         }
         String token = secrets.getProperty("tally.ingest.discord.token", "").strip();
-        String channel = secrets.getProperty("tally.ingest.discord.channel-id", "").strip();
+        String channelKey = args.length > 2 ? args[2] : "sandbox.discord.channel-id";
+        String channel = secrets.getProperty(channelKey, "").strip();
         int limit = args.length > 1 ? Integer.parseInt(args[1]) : 20;
         if (token.isEmpty() || channel.isEmpty()) {
-            throw new IllegalStateException("token or channel-id missing in secrets.properties");
+            throw new IllegalStateException("tally.ingest.discord.token or " + channelKey + " missing in secrets.properties");
         }
         HttpResponse<String> response = HttpClient.newHttpClient().send(HttpRequest.newBuilder(
                         URI.create("https://discord.com/api/v10/channels/" + channel + "/messages?limit=" + limit))
                 .header("Authorization", "Bot " + token)
-                .header("User-Agent", "DiscordBot (tally-acceptance, 1.0)")
+                .header("User-Agent", "DiscordBot (tally-sandbox, 1.0)")
                 .GET().build(), HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
             System.out.println("Discord returned HTTP " + response.statusCode());
