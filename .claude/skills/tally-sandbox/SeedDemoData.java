@@ -30,15 +30,17 @@ public class SeedDemoData {
             new Meal("Eggs and toast", 390, 24, 30, 18, "breakfast"),
             new Meal("Greek yogurt and berries", 310, 25, 35, 7, "breakfast"));
     static final List<Meal> LUNCHES = List.of(
-            new Meal("Chicken rice bowl", 650, 45, 75, 15, "lunch"),
-            new Meal("Beef and broccoli", 610, 42, 55, 22, "lunch"),
-            new Meal("Tuna sandwich", 480, 34, 48, 14, "lunch"),
-            new Meal("Pork adobo with rice", 720, 38, 70, 30, "lunch"));
+            new Meal("Chicken rice bowl", 730, 45, 95, 15, "lunch"),
+            new Meal("Beef and broccoli with rice", 690, 42, 75, 22, "lunch"),
+            new Meal("Tuna sandwich and fruit", 560, 34, 68, 14, "lunch"),
+            new Meal("Pork adobo with rice", 800, 38, 90, 30, "lunch"));
+    // Lunches and dinners keep most days near 2000 kcal while protein stays about 20 g short of 150 g: an
+    // on-track week with one clear gap for the coach to act on.
     static final List<Meal> DINNERS = List.of(
-            new Meal("Salmon and potatoes", 640, 40, 50, 28, "dinner"),
-            new Meal("Chicken tinola", 450, 38, 25, 18, "dinner"),
-            new Meal("Pasta with meat sauce", 700, 35, 85, 22, "dinner"),
-            new Meal("Tofu stir-fry with rice", 560, 26, 72, 17, "dinner"));
+            new Meal("Salmon and potatoes", 720, 40, 70, 28, "dinner"),
+            new Meal("Chicken tinola with rice", 530, 38, 45, 18, "dinner"),
+            new Meal("Pasta with meat sauce", 780, 35, 105, 22, "dinner"),
+            new Meal("Tofu stir-fry with rice", 640, 26, 92, 17, "dinner"));
     static final List<Meal> SNACKS = List.of(
             new Meal("Protein shake", 160, 30, 5, 2, "post-workout"),
             new Meal("Apple and peanut butter", 270, 7, 28, 16, "snack"));
@@ -84,12 +86,13 @@ public class SeedDemoData {
                     meals += meal(c, day, LocalTime.of(18, 15), SNACKS.get(0));
                     sessions++;
                     workouts++;
-                } else if (!isToday && random.nextInt(3) == 0) {
-                    meals += meal(c, day, LocalTime.of(15, 30), SNACKS.get(1));
+                } else if (!isToday) {
+                    meals += meal(c, day, LocalTime.of(15, 30), random.nextInt(3) == 0 ? SNACKS.get(1) : SNACKS.get(0));
                 }
-                // Weigh-ins: every 2-3 days, trending down about 1 kg over the period with daily noise.
+                // Weigh-ins: every 2-3 days, trending down about 1 kg over the period. The noise is small so the
+                // trend reads clearly and the coach doesn't misread a bounce.
                 if (back % 5 == 0 || back % 5 == 2) {
-                    double noise = (random.nextInt(7) - 3) / 10.0;
+                    double noise = (random.nextInt(3) - 1) / 20.0;
                     insert(c, "INSERT INTO weigh_ins (weigh_date, weight_kg, notes, created_at) VALUES (?, ?, ?, ?)",
                             day.toString(), Math.round((weight + noise) * 10) / 10.0,
                             back % 10 == 0 ? String.format(java.util.Locale.ROOT, "BF: %.1f%%", 18.5 - (DAYS - back) * 0.05) : "",

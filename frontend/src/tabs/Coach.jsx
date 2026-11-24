@@ -284,7 +284,7 @@ function Message({ role, markdown, thinking = false, error = false, children }) 
   const isUser = role === 'user';
   return (
     <div className={`message ${isUser ? 'user-message' : 'assistant-message'}`}>
-      <div className="message-avatar">{isUser ? 'YOU' : 'F.'}</div>
+      <div className="message-avatar">{isUser ? 'YOU' : 'T.'}</div>
       <div className="message-bubble">
         <div className="message-author">{isUser ? 'YOU' : 'TALLY'}</div>
         {markdown !== undefined ? (
